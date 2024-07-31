@@ -6,7 +6,6 @@ export interface TUserRoleInterface {
     isAdmin: boolean;
     isSuperAdmin: boolean;
     isStudent: boolean;
-    isTeacher: boolean;
-    isNonTeacher: boolean;
+    isEmployee: boolean;
     timeStamps: Date;
 }

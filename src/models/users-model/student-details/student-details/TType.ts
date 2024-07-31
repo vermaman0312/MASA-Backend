@@ -13,11 +13,11 @@ export interface TStudentDetailsInterface {
   userState: string | null;
   userPinCode: string | null;
   userDocuments: Array<string> | null;
-  userFatherName: string;
-  userMotherName: string;
-  userFatherOccupation: string;
-  userMotherOccupation: string;
-  userLocalGuardianName: string;
-  userBloodGroup: string;
+  userFatherName: string | null;
+  userMotherName: string | null;
+  userFatherOccupation: string | null;
+  userMotherOccupation: string | null;
+  userLocalGuardianName: string | null;
+  userBloodGroup: string | null;
   timeStamps: Date;
 }

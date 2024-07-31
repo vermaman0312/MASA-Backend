@@ -95,14 +95,14 @@ export const studentProtect: RequestHandler = async (
   }
 };
 
-export const teacherProtect: RequestHandler = async (
+export const employeeProtect: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const user = req.user as TUserRoleInterface & Document;
-    if (!user || !user.isTeacher) {
+    if (!user || !user.isEmployee) {
       return res.json({
         Type: "Success",
         Success: false,

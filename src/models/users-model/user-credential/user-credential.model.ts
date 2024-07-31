@@ -26,6 +26,7 @@ const UserCredentialSchema = new mongoose.Schema(
     userPassword: {
       type: String,
       required: true,
+      unique: true,
     },
     userCountryCode: {
       type: Number,
@@ -35,14 +36,12 @@ const UserCredentialSchema = new mongoose.Schema(
     userPhoneNumber: {
       type: Number,
       required: false,
-      unique: true,
       default: null,
     },
     userOtp: {
       type: String,
       required: false,
       default: null,
-      unique: true,
     },
     user2FA: {
       type: Boolean,

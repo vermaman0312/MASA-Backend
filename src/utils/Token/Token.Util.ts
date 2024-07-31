@@ -41,7 +41,7 @@ export const decodeToken = async (bearerToken: string) => {
       isAdmin: user.isAdmin,
       isSuperAdmin: user.isSuperAdmin,
       isStudent: user.isStudent,
-      isTeacher: user.isTeacher,
+      isEmployee: user.isEmployee,
     };
   } catch (error) {
     if ((error as Error).name === "TokenExpiredError") {
