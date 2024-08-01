@@ -17,7 +17,7 @@ export const generateUniqueId = async (
   const SOMEMPLOYEEPREFIX = "SOMEMP";
   const MAINEMPLOYEEPREFIX = "RKEMP";
 
-  if (role === "student") {
+  if (role === "isStudent") {
     switch (department) {
       case "CE":
         userUniqueIdPrefix = CEPREFIXSTUDENT;

@@ -1,8 +1,11 @@
 import express from "express";
 import {
   addEmployeeRegistration,
+  addStudentRegistration,
+  allUsersListsWithFilter,
   superAdminRegistration,
-} from "../../controllers/superadmin-controller/user-superadmin-controller";
+  userDetails,
+} from "../../controllers/admin-superadmin-controller/users-admin-superadmin.controller";
 import {
   superAdminProtect,
   tokenProtect,
@@ -18,7 +21,16 @@ publicRouteSuperAdmin
 
 // Private route
 privateRouteSuperAdmin
-  .route("/superadmin/add-admin")
+  .route("/superadmin/add-employee")
   .post(tokenProtect, superAdminProtect, addEmployeeRegistration);
+privateRouteSuperAdmin
+  .route("/superadmin/add-student")
+  .post(tokenProtect, superAdminProtect, addStudentRegistration);
+privateRouteSuperAdmin
+  .route("/superadmin/user-list")
+  .post(tokenProtect, superAdminProtect, allUsersListsWithFilter);
+privateRouteSuperAdmin
+  .route("/superadmin/user-details")
+  .post(tokenProtect, superAdminProtect, userDetails);
 
 export { publicRouteSuperAdmin, privateRouteSuperAdmin };
