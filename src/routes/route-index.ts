@@ -12,7 +12,10 @@ import {
   privateRouteSuperAdmin,
   publicRouteSuperAdmin,
 } from "./admin-superadmin-route/users-admin-superadmin-route";
-import { publicRouteCommon } from "./common-route/users-common.route";
+import {
+  privateRouteCommon,
+  publicRouteCommon,
+} from "./common-route/users-common.route";
 
 // Define the method and origin //
 const options = {
@@ -49,7 +52,7 @@ const PRIVATE_ROUTE = "/api/v1/private/auth";
 // User public route //
 app.use(PUBLIC_ROUTE, [publicRouteSuperAdmin, publicRouteCommon]);
 // User authentication route //
-app.use(PRIVATE_ROUTE, [privateRouteSuperAdmin]);
+app.use(PRIVATE_ROUTE, [privateRouteSuperAdmin, privateRouteCommon]);
 
 // Error Handler //
 app.use(notFound);

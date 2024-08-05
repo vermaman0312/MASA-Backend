@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 
-interface ILocationType {
+export interface ILocationType {
     longitude: string;
     latitude: string;
     status: boolean;
