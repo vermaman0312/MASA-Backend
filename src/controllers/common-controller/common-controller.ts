@@ -42,7 +42,7 @@ export const userLogin: RequestHandler = async (
         Type: "Success",
         Success: false,
         Status: 401,
-        Message: "Invalid credentials!!!",
+        Message: "Invalid credential!!!",
       });
     }
     const isPasswordMatched = await bcrypt.compare(
@@ -54,7 +54,7 @@ export const userLogin: RequestHandler = async (
         Type: "Success",
         Success: false,
         Status: 401,
-        Message: "Invalid credentials!!!",
+        Message: "Invalid credential!!!",
       });
     }
     return res.json({
