@@ -8,6 +8,82 @@ import {
   TUserDeviceInterface,
 } from "../../models/users-model/user-device/TType";
 import UserDevice from "../../models/users-model/user-device/user-device.model";
+import UserRole from "../../models/users-model/user-role/user-role.model";
+import StudentDetails from "../../models/users-model/student-details/student-details/student-details-model";
+import EmployeeDetails from "../../models/users-model/employee-details/employee-details/employee-details.model";
+
+// Get username via ip address
+export const getUserNameViaIpAddress: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const { ipAddress } = req.body as TUserDeviceInterface;
+    if (!ipAddress) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Invalid IP address!!!",
+      });
+    }
+    const deviceDetails = await UserDevice.findOne({ ipAddress: ipAddress });
+    if (!deviceDetails) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Device not found!!!",
+      });
+    }
+    const userRole = await UserRole.findOne({ userId: deviceDetails.userId });
+    const studentDetails = await StudentDetails.findOne({
+      userId: deviceDetails.userId,
+    });
+    const employeeDetails = await EmployeeDetails.findOne({
+      userId: deviceDetails.userId,
+    });
+    if (userRole?.isStudent) {
+      return res.json({
+        Type: "Success",
+        Success: true,
+        Status: 200,
+        Message: "User details fetched successfully!!!",
+        Data: {
+          userFirstName: studentDetails?.userFirstName,
+          userLastName: studentDetails?.userLastName,
+        },
+      });
+    } else {
+      return res.json({
+        Type: "Success",
+        Success: true,
+        Status: 200,
+        Message: "User details fetched successfully!!!",
+        Data: {
+          userFirstName: employeeDetails?.userFirstName,
+          userLastName: employeeDetails?.userLastName,
+        },
+      });
+    }
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
 
 // User login
 export const userLogin: RequestHandler = async (

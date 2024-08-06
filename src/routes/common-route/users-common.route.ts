@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getDeviceDetails,
+  getUserNameViaIpAddress,
   updateUserDeviceDetails,
   userCheck2FA,
   userLogin,
@@ -12,6 +13,7 @@ const publicRouteCommon = express.Router();
 const privateRouteCommon = express.Router();
 
 // Public route
+publicRouteCommon.route("/user/fetch/user-details").post(getUserNameViaIpAddress);
 publicRouteCommon.route("/user/login").post(userLogin);
 
 // Private route
