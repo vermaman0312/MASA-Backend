@@ -150,7 +150,6 @@ export const updateUserDeviceDetails: RequestHandler = async (
       !browserOS ||
       !browserEngine ||
       !ipAddress ||
-      !macAddress ||
       !longitude ||
       !latitude
     ) {
@@ -176,6 +175,7 @@ export const updateUserDeviceDetails: RequestHandler = async (
           longitude: longitude,
           latitude: latitude,
         },
+        timeStamps: new Date(),
       }
     );
     if (!userDeviceDetails) {
@@ -191,6 +191,63 @@ export const updateUserDeviceDetails: RequestHandler = async (
       Success: true,
       Status: 200,
       Message: "User device details updated successfully!!!",
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// Get device details
+export const getDeviceDetails: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    const deviceDetails = await UserDevice.findOne({
+      userId: loggedInUser?.userId,
+    });
+    if (!deviceDetails) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 404,
+        Message: "User device details not found!!!",
+      });
+    }
+    const deviceDetailsObject = {
+      loggedInStatus: deviceDetails.loggedInStatus,
+      browserName: deviceDetails.browserName,
+      browserVersion: deviceDetails.browserVersion,
+      browserId: deviceDetails.browserId,
+      browserOS: deviceDetails.browserOS,
+      browserEngine: deviceDetails.browserEngine,
+      ipAddress: deviceDetails.ipAddress,
+      macAddress: deviceDetails.macAddress,
+      location: deviceDetails.location,
+      timeStamps: deviceDetails.timeStamps,
+    };
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "User device details fetched successfully!!!",
+      Data: deviceDetailsObject,
     });
   } catch (error) {
     return res.json({
