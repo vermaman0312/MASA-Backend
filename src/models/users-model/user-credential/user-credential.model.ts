@@ -38,16 +38,6 @@ const UserCredentialSchema = new mongoose.Schema(
       required: false,
       default: null,
     },
-    userOtp: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    user2FA: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     accountActivated: {
       type: Boolean,
       required: false,

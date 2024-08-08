@@ -11,6 +11,11 @@ import UserDevice from "../../models/users-model/user-device/user-device.model";
 import UserRole from "../../models/users-model/user-role/user-role.model";
 import StudentDetails from "../../models/users-model/student-details/student-details/student-details-model";
 import EmployeeDetails from "../../models/users-model/employee-details/employee-details/employee-details.model";
+import UserPrivacy from "../../models/users-model/user-privacy/user-privacy.model";
+import { TUserRoleInterface } from "../../models/users-model/user-role/TType";
+import UserProfileImage from "../../models/users-model/user-profile-image/user-profile-image.model";
+import EmployeeOfficialDetails from "../../models/users-model/employee-details/employee-official-details/employee-official-details.model";
+import StudentOfficialDetails from "../../models/users-model/student-details/student-official-details/student-official-details.model";
 
 // Get username via ip address
 export const getUserNameViaIpAddress: RequestHandler = async (
@@ -150,6 +155,152 @@ export const userLogin: RequestHandler = async (
   }
 };
 
+// User details
+export const userDetails: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    if (!loggedInUser?.userId) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Unauthorized access!!!",
+      });
+    }
+    const { userId } = req.body as TUserRoleInterface;
+    const userIdToUse = userId || loggedInUser.userId;
+    const userRole = await UserRole.findOne({ userId: userIdToUse });
+    const userProfileImage = await UserProfileImage.findOne({
+      userId: userIdToUse,
+    });
+    const userCredentials = await UserCredential.findOne({ _id: userIdToUse });
+    const employeeDetails = await EmployeeDetails.findOne({
+      userId: userIdToUse,
+    });
+    const employeeOfficialDetails = await EmployeeOfficialDetails.findOne({
+      userId: userIdToUse,
+    });
+    const studentDetails = await StudentDetails.findOne({
+      userId: userIdToUse,
+    });
+    const studentOfficialDetails = await StudentOfficialDetails.findOne({
+      userId: userIdToUse,
+    });
+
+    const userDetailsObject = {
+      userId: userRole?.userId,
+      userUniqueId: userRole?.userUniqueId,
+      userFirstName: userRole?.isStudent
+        ? studentDetails?.userFirstName
+        : employeeDetails?.userFirstName,
+      userLastName: userRole?.isStudent
+        ? studentDetails?.userLastName
+        : employeeDetails?.userLastName,
+      userProfileImage: userProfileImage?.profileImage.filter(
+        (filter) => filter.status
+      ),
+      userGender: userRole?.isStudent
+        ? studentDetails?.userGender
+        : employeeDetails?.userGender,
+      userDateOfBirth: userRole?.isStudent
+        ? studentDetails?.userDateOfBirth
+        : employeeDetails?.userDateOfBirth,
+      userAddress1: userRole?.isStudent
+        ? studentDetails?.userAddress1
+        : employeeDetails?.userAddress1,
+      userAddress2: userRole?.isStudent
+        ? studentDetails?.userAddress2
+        : employeeDetails?.userAddress2,
+      userCountry: userRole?.isStudent
+        ? studentDetails?.userCountry
+        : employeeDetails?.userCountry,
+      userState: userRole?.isStudent
+        ? studentDetails?.userState
+        : employeeDetails?.userState,
+      userPinCode: userRole?.isStudent
+        ? studentDetails?.userPinCode
+        : employeeDetails?.userPinCode,
+      userDocuments: userRole?.isStudent
+        ? studentDetails?.userDocuments
+        : employeeDetails?.userDocuments,
+      userFatherName: userRole?.isStudent
+        ? studentDetails?.userFatherName
+        : undefined,
+      userMotherName: userRole?.isStudent
+        ? studentDetails?.userMotherName
+        : undefined,
+      userFatherOccupation: userRole?.isStudent
+        ? studentDetails?.userFatherOccupation
+        : undefined,
+      userMotherOccupation: userRole?.isStudent
+        ? studentDetails?.userMotherOccupation
+        : undefined,
+      userLocalGuardianName: userRole?.isStudent
+        ? studentDetails?.userLocalGuardianName
+        : undefined,
+      userBloodGroup: userRole?.isStudent
+        ? studentDetails?.userBloodGroup
+        : undefined,
+      userEmailAddress: userCredentials?.userEmailAddress,
+      userCountryCode: userCredentials?.userCountryCode,
+      userPhoneNumber: userCredentials?.userPhoneNumber,
+      userDepartment: userRole?.isStudent
+        ? studentOfficialDetails?.userDepartment
+        : employeeOfficialDetails?.userDepartment,
+      userBranch: userRole?.isStudent
+        ? studentOfficialDetails?.userBranch
+        : undefined,
+      userFaculty: userRole?.isStudent
+        ? studentOfficialDetails?.userFaculty
+        : undefined,
+      userAddmissionDate: userRole?.isStudent
+        ? studentOfficialDetails?.userAdmissionDate
+        : undefined,
+      userDesignation: !userRole?.isStudent
+        ? employeeOfficialDetails?.userDesignation
+        : undefined,
+      userJoiningDate: !userRole?.isStudent
+        ? employeeOfficialDetails?.userJoiningDate
+        : undefined,
+      userRole: userRole?.isAdmin
+        ? "admin"
+        : userRole?.isEmployee
+          ? "employee"
+          : userRole?.isSuperAdmin
+            ? "superadmin"
+            : "student",
+    };
+
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "User details fetched successfully!!!",
+      Data: userDetailsObject,
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
 // Check two factor authentication
 export const userCheck2FA: RequestHandler = async (
   req: Request,
@@ -167,8 +318,10 @@ export const userCheck2FA: RequestHandler = async (
     }
     const authorizationData = req.headers.authorization;
     const loggedInUser = await decodeToken(authorizationData as string);
-    const userDetails2FA = await UserCredential.findById(loggedInUser?.userId);
-    if (!userDetails2FA?.user2FA) {
+    const userDetails2FA = await UserPrivacy.findOne({
+      userId: loggedInUser?.userId,
+    });
+    if (!userDetails2FA?.userIs2FA) {
       return res.json({
         Type: "Success",
         Success: false,

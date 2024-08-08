@@ -16,6 +16,7 @@ import { TStudetOfficialDetailsInterface } from "../../models/users-model/studen
 import StudentDetails from "../../models/users-model/student-details/student-details/student-details-model";
 import StudentOfficialDetails from "../../models/users-model/student-details/student-official-details/student-official-details.model";
 import { TUserRoleInterface } from "../../models/users-model/user-role/TType";
+import UserPrivacy from "../../models/users-model/user-privacy/user-privacy.model";
 
 // Super-admin registration
 export const superAdminRegistration: RequestHandler = async (
@@ -91,12 +92,17 @@ export const superAdminRegistration: RequestHandler = async (
       userUniqueId: registeredUser.userUniqueId,
       isSuperAdmin: true,
     });
+    const userPrivacy = new UserPrivacy({
+      userId: registeredUser._id,
+      userUniqueId: registeredUser.userUniqueId,
+    });
     const savedata = await Promise.all([
       userdetails.save(),
       userdevice.save(),
       userorganization.save(),
       userprofileimage.save(),
       userrole.save(),
+      userPrivacy.save(),
     ]);
     if (!savedata) {
       return res.json({
@@ -248,6 +254,10 @@ export const addEmployeeRegistration: RequestHandler = async (
       userUniqueId: registeredEmployee.userUniqueId,
       isEmployee: true,
     });
+    const registeredEmployeeUserPrivacy = new UserPrivacy({
+      userId: registeredEmployee._id,
+      userUniqueId: registeredEmployee.userUniqueId,
+    });
 
     await Promise.all([
       registeredEmployeeDetails.save(),
@@ -255,6 +265,7 @@ export const addEmployeeRegistration: RequestHandler = async (
       registeredEmployeeDeviceDetails.save(),
       registeredEmployeeProfileImageDetails.save(),
       registeredEmployeeRoleDetails.save(),
+      registeredEmployeeUserPrivacy.save(),
     ]);
     return res.json({
       Type: "Success",
@@ -420,6 +431,10 @@ export const addStudentRegistration: RequestHandler = async (
       userUniqueId: registeredStudent.userUniqueId,
       isStudent: true,
     });
+    const registeredStudentUserPrivacy = new UserPrivacy({
+      userId: registeredStudent._id,
+      userUniqueId: registeredStudent.userUniqueId,
+    });
 
     await Promise.all([
       registeredStudentDetails.save(),
@@ -427,6 +442,7 @@ export const addStudentRegistration: RequestHandler = async (
       registeredStudentDeviceDetails.save(),
       registeredStudentProfileImageDetails.save(),
       registeredStudentRoleDetails.save(),
+      registeredStudentUserPrivacy.save(),
     ]);
     return res.json({
       Type: "Success",
@@ -575,152 +591,6 @@ export const allUsersListsWithFilter: RequestHandler = async (
         currentPage: page,
         users: userList,
       },
-    });
-  } catch (error) {
-    return res.json({
-      Type: "Success",
-      Success: false,
-      Status: 500,
-      Message: "Internal server error!!!",
-    });
-  }
-};
-
-// User details
-export const userDetails: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const token = req.query.token;
-    if (!token) {
-      return res.json({
-        Type: "Success",
-        Success: false,
-        Status: 401,
-        Message: "Unknown Api call!!!",
-      });
-    }
-    const authorizationData = req.headers.authorization;
-    const loggedInUser = await decodeToken(authorizationData as string);
-    if (!loggedInUser?.userId) {
-      return res.json({
-        Type: "Success",
-        Success: false,
-        Status: 403,
-        Message: "Unauthorized access!!!",
-      });
-    }
-    const { userId } = req.body as TUserRoleInterface;
-    const userIdToUse = userId || loggedInUser.userId;
-    const userRole = await UserRole.findOne({ userId: userIdToUse });
-    const userProfileImage = await UserProfileImage.findOne({
-      userId: userIdToUse,
-    });
-    const userCredentials = await UserCredential.findOne({ _id: userIdToUse });
-    const employeeDetails = await EmployeeDetails.findOne({
-      userId: userIdToUse,
-    });
-    const employeeOfficialDetails = await EmployeeOfficialDetails.findOne({
-      userId: userIdToUse,
-    });
-    const studentDetails = await StudentDetails.findOne({
-      userId: userIdToUse,
-    });
-    const studentOfficialDetails = await StudentOfficialDetails.findOne({
-      userId: userIdToUse,
-    });
-
-    const userDetailsObject = {
-      userId: userRole?.userId,
-      userUniqueId: userRole?.userUniqueId,
-      userFirstName: userRole?.isStudent
-        ? studentDetails?.userFirstName
-        : employeeDetails?.userFirstName,
-      userLastName: userRole?.isStudent
-        ? studentDetails?.userLastName
-        : employeeDetails?.userLastName,
-      userProfileImage: userProfileImage?.profileImage.filter(
-        (filter) => filter.status
-      ),
-      userGender: userRole?.isStudent
-        ? studentDetails?.userGender
-        : employeeDetails?.userGender,
-      userDateOfBirth: userRole?.isStudent
-        ? studentDetails?.userDateOfBirth
-        : employeeDetails?.userDateOfBirth,
-      userAddress1: userRole?.isStudent
-        ? studentDetails?.userAddress1
-        : employeeDetails?.userAddress1,
-      userAddress2: userRole?.isStudent
-        ? studentDetails?.userAddress2
-        : employeeDetails?.userAddress2,
-      userCountry: userRole?.isStudent
-        ? studentDetails?.userCountry
-        : employeeDetails?.userCountry,
-      userState: userRole?.isStudent
-        ? studentDetails?.userState
-        : employeeDetails?.userState,
-      userPinCode: userRole?.isStudent
-        ? studentDetails?.userPinCode
-        : employeeDetails?.userPinCode,
-      userDocuments: userRole?.isStudent
-        ? studentDetails?.userDocuments
-        : employeeDetails?.userDocuments,
-      userFatherName: userRole?.isStudent
-        ? studentDetails?.userFatherName
-        : undefined,
-      userMotherName: userRole?.isStudent
-        ? studentDetails?.userMotherName
-        : undefined,
-      userFatherOccupation: userRole?.isStudent
-        ? studentDetails?.userFatherOccupation
-        : undefined,
-      userMotherOccupation: userRole?.isStudent
-        ? studentDetails?.userMotherOccupation
-        : undefined,
-      userLocalGuardianName: userRole?.isStudent
-        ? studentDetails?.userLocalGuardianName
-        : undefined,
-      userBloodGroup: userRole?.isStudent
-        ? studentDetails?.userBloodGroup
-        : undefined,
-      userEmailAddress: userCredentials?.userEmailAddress,
-      userCountryCode: userCredentials?.userCountryCode,
-      userPhoneNumber: userCredentials?.userPhoneNumber,
-      userDepartment: userRole?.isStudent
-        ? studentOfficialDetails?.userDepartment
-        : employeeOfficialDetails?.userDepartment,
-      userBranch: userRole?.isStudent
-        ? studentOfficialDetails?.userBranch
-        : undefined,
-      userFaculty: userRole?.isStudent
-        ? studentOfficialDetails?.userFaculty
-        : undefined,
-      userAddmissionDate: userRole?.isStudent
-        ? studentOfficialDetails?.userAdmissionDate
-        : undefined,
-      userDesignation: !userRole?.isStudent
-        ? employeeOfficialDetails?.userDesignation
-        : undefined,
-      userJoiningDate: !userRole?.isStudent
-        ? employeeOfficialDetails?.userJoiningDate
-        : undefined,
-      userRole: userRole?.isAdmin
-        ? "admin"
-        : userRole?.isEmployee
-          ? "employee"
-          : userRole?.isSuperAdmin
-            ? "superadmin"
-            : "student",
-    };
-
-    return res.json({
-      Type: "Success",
-      Success: true,
-      Status: 200,
-      Message: "User details fetched successfully!!!",
-      Data: userDetailsObject,
     });
   } catch (error) {
     return res.json({
