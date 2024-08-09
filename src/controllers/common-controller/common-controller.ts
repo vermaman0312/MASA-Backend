@@ -19,6 +19,7 @@ import { TUserRoleInterface } from "../../models/users-model/user-role/TType";
 import UserProfileImage from "../../models/users-model/user-profile-image/user-profile-image.model";
 import EmployeeOfficialDetails from "../../models/users-model/employee-details/employee-official-details/employee-official-details.model";
 import StudentOfficialDetails from "../../models/users-model/student-details/student-official-details/student-official-details.model";
+import { TUserPrivacyInterface } from "../../models/users-model/user-privacy/TType";
 
 // Get username via ip address
 export const getUserNameViaIpAddress: RequestHandler = async (
@@ -680,6 +681,70 @@ export const details2FA: RequestHandler = async (
       Status: 200,
       Message: "User 2FA details fetched successfully!!!",
       Data: details2FAObject,
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// Update 2FA details
+export const update2FADetails: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    const {
+      userIs2FA,
+      userPassKey,
+      userPreffered2FAApp,
+      user2FAMethod,
+      userSecurityKey,
+      userRecoveryCode,
+    } = req.body as TUserPrivacyInterface;
+    const userPrivacy = await UserPrivacy.findOneAndUpdate(
+      {
+        userId: loggedInUser?.userId,
+      },
+      {
+        userIs2FA: userIs2FA ? userIs2FA : undefined,
+        userPassKey: userPassKey ? userPassKey : undefined,
+        userPreffered2FAApp: userPreffered2FAApp
+          ? userPreffered2FAApp
+          : undefined,
+        user2FAMethod: user2FAMethod ? user2FAMethod : undefined,
+        userSecurityKey: userSecurityKey ? userSecurityKey : undefined,
+        userRecoveryCode: userRecoveryCode ? userRecoveryCode : undefined,
+      }
+    );
+    if (!userPrivacy) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 404,
+        Message: "Something went wrong!!!",
+      });
+    }
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "User 2FA details updated successfully!!!",
     });
   } catch (error) {
     return res.json({
