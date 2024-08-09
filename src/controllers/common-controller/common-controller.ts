@@ -1,6 +1,9 @@
 import { Request, RequestHandler, Response } from "express";
 import bcrypt from "bcrypt";
-import { TUserCredentialInterface } from "../../models/users-model/user-credential/TType";
+import {
+  TPasswordType,
+  TUserCredentialInterface,
+} from "../../models/users-model/user-credential/TType";
 import UserCredential from "../../models/users-model/user-credential/user-credential.model";
 import { decodeToken, generateToken } from "../../utils/Token/Token.Util";
 import {
@@ -126,6 +129,7 @@ export const userLogin: RequestHandler = async (
         Message: "Invalid credential!!!",
       });
     }
+
     const isPasswordMatched = await bcrypt.compare(
       userPassword,
       user.userPassword
@@ -144,6 +148,101 @@ export const userLogin: RequestHandler = async (
       Status: 200,
       Message: "Logged in successfull!!!",
       Data: generateToken(user._id as string),
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// Change password
+export const userChangePassword: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    if (!loggedInUser?.userId) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Unauthorized access!!!",
+      });
+    }
+    const { userOldPassword, userNewPassword } = req.body as TPasswordType;
+    if (!userOldPassword || !userNewPassword) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Invalid old password or new password!!!",
+      });
+    }
+    if (userOldPassword === userNewPassword) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Old and new password cannot be same!!!",
+      });
+    }
+    const userPassword = await UserCredential.findById(loggedInUser.userId);
+    if (!userPassword) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "User not found!!!",
+      });
+    }
+    const validPassword = await bcrypt.compare(
+      userOldPassword,
+      userPassword?.userPassword
+    );
+    if (!validPassword) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Invalid old password!!!",
+      });
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const hashPassword = bcrypt.hashSync(userNewPassword, salt);
+    const updatedPassword = await UserCredential.findByIdAndUpdate(
+      loggedInUser.userId,
+      {
+        userPassword: hashPassword,
+      }
+    );
+    if (!updatedPassword) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Failed to update password!!!",
+      });
+    }
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "Password changed successfully!!!",
     });
   } catch (error) {
     return res.json({
@@ -209,7 +308,7 @@ export const userDetails: RequestHandler = async (
       userLastName: userRole?.isStudent
         ? studentDetails?.userLastName
         : employeeDetails?.userLastName,
-      userProfileImage: userProfileImage?.profileImage.filter(
+      userProfileImage: userProfileImage?.profileImage.find(
         (filter) => filter.status
       ),
       userGender: userRole?.isStudent
@@ -524,6 +623,63 @@ export const userLogout: RequestHandler = async (
       Success: true,
       Status: 200,
       Message: "User device logged out successfully!!!",
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// 2FA details
+export const details2FA: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    const userDetails2FA = await UserPrivacy.findOne({
+      userId: loggedInUser?.userId,
+    });
+    if (!userDetails2FA) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 404,
+        Message: "User 2FA details not found!!!",
+      });
+    }
+    const details2FAObject = {
+      user2FAId: userDetails2FA._id,
+      userId: userDetails2FA.userId,
+      userUniqueId: userDetails2FA.userUniqueId,
+      userIs2FA: userDetails2FA.userIs2FA,
+      userPassKey: userDetails2FA.userPassKey,
+      userPreffered2FAApp: userDetails2FA.userPreffered2FAApp,
+      user2FAMethod: userDetails2FA.user2FAMethod,
+      userSecurityKey: userDetails2FA.userSecurityKey,
+      userRecoveryCode: userDetails2FA.userRecoveryCode,
+      timeStamps: userDetails2FA.timeStamps,
+    };
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "User 2FA details fetched successfully!!!",
+      Data: details2FAObject,
     });
   } catch (error) {
     return res.json({

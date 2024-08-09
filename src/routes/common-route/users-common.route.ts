@@ -3,6 +3,7 @@ import {
   getDeviceDetails,
   getUserNameViaIpAddress,
   updateUserDeviceDetails,
+  userChangePassword,
   userCheck2FA,
   userDetails,
   userLogin,
@@ -20,7 +21,9 @@ publicRouteCommon
 publicRouteCommon.route("/user/login").post(userLogin);
 
 // Private route
-privateRouteCommon.route("/user/fetch/user-details").post(tokenProtect, userDetails);
+privateRouteCommon
+  .route("/user/fetch/user-details")
+  .post(tokenProtect, userDetails);
 privateRouteCommon.route("/user/check-2FA").post(tokenProtect, userCheck2FA);
 privateRouteCommon
   .route("/user/update/device-details")
@@ -29,5 +32,8 @@ privateRouteCommon
   .route("/user/fetch/device-details")
   .post(tokenProtect, getDeviceDetails);
 privateRouteCommon.route("/user/logout/device").post(tokenProtect, userLogout);
+privateRouteCommon
+  .route("/user/change-password")
+  .post(tokenProtect, userChangePassword);
 
 export { publicRouteCommon, privateRouteCommon };

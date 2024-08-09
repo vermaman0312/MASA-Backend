@@ -1,3 +1,7 @@
+export interface TPasswordType {
+  userOldPassword: string;
+  userNewPassword: string;
+}
 export interface TUserCredentialInterface {
   userUniqueId: string;
   userEmailAddress: string | null;

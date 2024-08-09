@@ -204,10 +204,11 @@ export const addEmployeeRegistration: RequestHandler = async (
         Message: "User already exist!!!",
       });
     }
+    const newPassword = await generateRandomPassword(8);
     const newCredential = new UserCredential({
       userUniqueId: await generateUniqueId("isAdmin", userDepartment),
       userEmailAddress: userEmailAddress,
-      userPassword: await generateRandomPassword(8),
+      userPassword: newPassword,
       userCountryCode: userCountryCode,
       userPhoneNumber: userPhoneNumber,
       accountActivated: true,
@@ -272,6 +273,7 @@ export const addEmployeeRegistration: RequestHandler = async (
       Success: true,
       Status: 201,
       Message: "Registered successful!!!",
+      passKey: newPassword,
     });
   } catch (error) {
     return res.json({
