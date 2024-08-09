@@ -14,6 +14,5 @@ export const generateRandomPassword = (digit: number): Promise<string> => {
     const rnum = Math.floor(Math.random() * chars.length);
     randomstring += chars.substring(rnum, rnum + 1);
   }
-  console.log("Promise.resolve(randomstring)", Promise.resolve(randomstring));
   return Promise.resolve(randomstring);
 };

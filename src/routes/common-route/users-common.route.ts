@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  details2FA,
   getDeviceDetails,
   getUserNameViaIpAddress,
   updateUserDeviceDetails,
@@ -35,5 +36,6 @@ privateRouteCommon.route("/user/logout/device").post(tokenProtect, userLogout);
 privateRouteCommon
   .route("/user/change-password")
   .post(tokenProtect, userChangePassword);
+privateRouteCommon.route("/user/details-2FA").post(tokenProtect, details2FA);
 
 export { publicRouteCommon, privateRouteCommon };
