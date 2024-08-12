@@ -5,7 +5,7 @@ export interface TUserPrivacyInterface {
   userUniqueId: string;
   userIs2FA: boolean;
   userOTP: string;
-  userPassKey: Array<string>;
+  userPassKey: string;
   userPreffered2FAApp: string;
   user2FAMethod: Array<string>;
   userSecurityKey: string;

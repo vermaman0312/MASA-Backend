@@ -3,6 +3,7 @@ import {
   details2FA,
   getDeviceDetails,
   getUserNameViaIpAddress,
+  update2FADetails,
   updateUserDeviceDetails,
   userChangePassword,
   userCheck2FA,
@@ -37,5 +38,6 @@ privateRouteCommon
   .route("/user/change-password")
   .post(tokenProtect, userChangePassword);
 privateRouteCommon.route("/user/details-2FA").post(tokenProtect, details2FA);
+privateRouteCommon.route("/user/update/details-2FA").post(tokenProtect, update2FADetails);
 
 export { publicRouteCommon, privateRouteCommon };

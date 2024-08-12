@@ -25,7 +25,7 @@ const UserPrivacySchema = new mongoose.Schema(
       default: null,
     },
     userPassKey: {
-      type: Array<string>,
+      type: String,
       required: false,
       default: null,
     },
