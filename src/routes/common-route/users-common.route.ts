@@ -16,6 +16,8 @@ import {
   userDetails,
   userLogin,
   userLogout,
+  generate2FAQRCode,
+  verify2FACode,
 } from "../../controllers/common-controller/common-controller";
 import { tokenProtect } from "../../middlewares/AuthenticationMiddleware/AuthenticationMiddleware/Authentication.Middleware";
 
@@ -65,5 +67,11 @@ privateRouteCommon
 privateRouteCommon
   .route("/user/update/2FA/recovery-code")
   .post(tokenProtect, update2FAMethodRecoveryCodes);
+privateRouteCommon
+  .route("/user/2FA/generate/qr-code")
+  .post(tokenProtect, generate2FAQRCode);
+privateRouteCommon
+  .route("/user/2FA/verify/otp-code")
+  .post(tokenProtect, verify2FACode);
 
 export { publicRouteCommon, privateRouteCommon };

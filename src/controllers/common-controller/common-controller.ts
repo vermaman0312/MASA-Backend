@@ -23,6 +23,9 @@ import {
   TUser2FAMethodType,
   TUserPrivacyInterface,
 } from "../../models/users-model/user-privacy/TType";
+import { generateOtpPathUrl, verify2FAOtp } from "../../utils/OTP/Otp.Util";
+import { OtpPathUrlType } from "../../utils/OTP/Model/Otp.DataType";
+import QRCode from "qrcode";
 
 // Get username via ip address
 export const getUserNameViaIpAddress: RequestHandler = async (
@@ -695,8 +698,6 @@ export const details2FA: RequestHandler = async (
   }
 };
 
-
-
 // Update preffered 2FA method
 export const updatePreffered2FAMethod: RequestHandler = async (
   req: Request,
@@ -1040,6 +1041,109 @@ export const update2FAMethodRecoveryCodes: RequestHandler = async (
       Success: true,
       Status: 200,
       Message: "User 2FA details updated successfully!!!",
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// 2FA QR Code generate
+export const generate2FAQRCode: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    const userPrivacy = await UserPrivacy.findOne({
+      userId: loggedInUser?.userId,
+    });
+    if (!userPrivacy?.userIs2FA) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 404,
+        Message: "Turn on the 2FA first!!!",
+      });
+    }
+    const { URL, secret } = (await generateOtpPathUrl(
+      authorizationData ?? ""
+    )) as OtpPathUrlType;
+    QRCode.toDataURL(URL, (err, dataUrl) => {
+      if (err) {
+        return res.json({
+          Type: "Success",
+          Success: false,
+          Status: 403,
+          Message: "Something went wrong!!!",
+        });
+      }
+      return res.json({
+        Type: "Success",
+        Success: true,
+        Status: 200,
+        Message: "QR code generated successfully!!!",
+        Data: {
+          Key: secret,
+          Image: dataUrl,
+        },
+      });
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// Verify 2FA code
+export const verify2FACode: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const { userOTP } = req.body as TUserPrivacyInterface;
+    const verified = verify2FAOtp(authorizationData as string, userOTP);
+    if (!verified) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 403,
+        Message: "Otp has been expired!!!",
+      });
+    }
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "Otp verified successfully!!!",
     });
   } catch (error) {
     return res.json({
