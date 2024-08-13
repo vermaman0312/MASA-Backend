@@ -3,7 +3,13 @@ import {
   details2FA,
   getDeviceDetails,
   getUserNameViaIpAddress,
-  update2FADetails,
+  updatePreffered2FAMethod,
+  update2FAPasskey,
+  update2FASwitch,
+  update2FAMethodAuthenticatorApp,
+  update2FAMethodTextSMS,
+  update2FAMethodSecurityKeys,
+  update2FAMethodRecoveryCodes,
   updateUserDeviceDetails,
   userChangePassword,
   userCheck2FA,
@@ -38,6 +44,26 @@ privateRouteCommon
   .route("/user/change-password")
   .post(tokenProtect, userChangePassword);
 privateRouteCommon.route("/user/details-2FA").post(tokenProtect, details2FA);
-privateRouteCommon.route("/user/update/details-2FA").post(tokenProtect, update2FADetails);
+privateRouteCommon
+  .route("/user/update/preffered-2FA-method")
+  .post(tokenProtect, updatePreffered2FAMethod);
+privateRouteCommon
+  .route("/user/update/2FA/passkey")
+  .post(tokenProtect, update2FAPasskey);
+privateRouteCommon
+  .route("/user/update/2FA")
+  .post(tokenProtect, update2FASwitch);
+privateRouteCommon
+  .route("/user/update/2FA/authenticator-app")
+  .post(tokenProtect, update2FAMethodAuthenticatorApp);
+privateRouteCommon
+  .route("/user/update/2FA/Text/SMS")
+  .post(tokenProtect, update2FAMethodTextSMS);
+privateRouteCommon
+  .route("/user/update/2FA/security-key")
+  .post(tokenProtect, update2FAMethodSecurityKeys);
+privateRouteCommon
+  .route("/user/update/2FA/recovery-code")
+  .post(tokenProtect, update2FAMethodRecoveryCodes);
 
 export { publicRouteCommon, privateRouteCommon };

@@ -40,16 +40,16 @@ const UserPrivacySchema = new mongoose.Schema(
       default: "Google authenticator app",
     },
     user2FAMethod: {
-      type: [String],
-      required: false,
-      enum: [
-        "userRecoveryCode",
-        "userSecurityKey",
-        "userPassKey",
-        "authenticator app",
-        "SMS/Text",
-      ],
-      default: null,
+      userAuthenticatorApp: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      userTextSMS: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     userSecurityKey: {
       type: String,
