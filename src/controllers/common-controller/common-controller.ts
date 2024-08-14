@@ -1098,8 +1098,8 @@ export const generate2FAQRCode: RequestHandler = async (
         Status: 200,
         Message: "QR code generated successfully!!!",
         Data: {
-          Key: secret,
-          Image: dataUrl,
+          qrKey: secret,
+          qrImage: dataUrl,
         },
       });
     });
