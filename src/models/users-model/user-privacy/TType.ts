@@ -9,6 +9,7 @@ export interface TUserPrivacyInterface {
   userId: ObjectId;
   userUniqueId: string;
   userIs2FA: boolean;
+  userIs2FASetupCompleted: boolean;
   userOTP: string;
   userPassKey: string;
   userPreffered2FAApp: string;

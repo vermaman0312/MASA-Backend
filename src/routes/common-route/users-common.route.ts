@@ -18,6 +18,7 @@ import {
   userLogout,
   generate2FAQRCode,
   verify2FACode,
+  update2FASetupCompleted,
 } from "../../controllers/common-controller/common-controller";
 import { tokenProtect } from "../../middlewares/AuthenticationMiddleware/AuthenticationMiddleware/Authentication.Middleware";
 
@@ -55,6 +56,9 @@ privateRouteCommon
 privateRouteCommon
   .route("/user/update/2FA")
   .post(tokenProtect, update2FASwitch);
+privateRouteCommon
+  .route("/user/update/2FA/setup-completed")
+  .post(tokenProtect, update2FASetupCompleted);
 privateRouteCommon
   .route("/user/update/2FA/authenticator-app")
   .post(tokenProtect, update2FAMethodAuthenticatorApp);

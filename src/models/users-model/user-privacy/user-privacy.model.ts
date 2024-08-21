@@ -19,6 +19,11 @@ const UserPrivacySchema = new mongoose.Schema(
       required: false,
       default: false,
     },
+    userIs2FASetupCompleted: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     userOTP: {
       type: String,
       required: false,

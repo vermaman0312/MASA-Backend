@@ -674,6 +674,7 @@ export const details2FA: RequestHandler = async (
       userId: userDetails2FA.userId,
       userUniqueId: userDetails2FA.userUniqueId,
       userIs2FA: userDetails2FA.userIs2FA,
+      userIs2FASetupCompleted: userDetails2FA.userIs2FASetupCompleted,
       userPassKey: userDetails2FA.userPassKey,
       userPreffered2FAApp: userDetails2FA.userPreffered2FAApp,
       user2FAMethod: userDetails2FA.user2FAMethod,
@@ -837,6 +838,56 @@ export const update2FASwitch: RequestHandler = async (
       Success: true,
       Status: 200,
       Message: "User 2FA details updated successfully!!!",
+    });
+  } catch (error) {
+    return res.json({
+      Type: "Success",
+      Success: false,
+      Status: 500,
+      Message: "Internal server error!!!",
+    });
+  }
+};
+
+// Update 2FA setup completed
+export const update2FASetupCompleted: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 401,
+        Message: "Unknown Api call!!!",
+      });
+    }
+    const authorizationData = req.headers.authorization;
+    const loggedInUser = await decodeToken(authorizationData as string);
+    const { userIs2FASetupCompleted } = req.body as TUserPrivacyInterface;
+    const userPrivacy = await UserPrivacy.findOneAndUpdate(
+      {
+        userId: loggedInUser?.userId,
+      },
+      {
+        userIs2FASetupCompleted: userIs2FASetupCompleted,
+      }
+    );
+    if (!userPrivacy) {
+      return res.json({
+        Type: "Success",
+        Success: false,
+        Status: 404,
+        Message: "Something went wrong!!!",
+      });
+    }
+    return res.json({
+      Type: "Success",
+      Success: true,
+      Status: 200,
+      Message: "User 2FA setup completed updated successfully!!!",
     });
   } catch (error) {
     return res.json({

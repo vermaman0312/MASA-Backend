@@ -50,7 +50,7 @@ export async function generateOtpPathUrl(
     label: userRole?.isStudent
       ? `${studentDetails?.userFirstName} ${studentDetails?.userLastName}`
       : `${employeeDetails?.userFirstName} ${employeeDetails?.userLastName}`,
-    issuer: "MASA",
+    issuer: "Management and  Strategic Automation System",
   });
   return { URL: otpAuthUrl, secret: secret.base32 };
 }
