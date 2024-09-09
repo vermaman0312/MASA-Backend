@@ -29,6 +29,11 @@ const UserPrivacySchema = new mongoose.Schema(
       required: false,
       default: null,
     },
+    user2FAKey: {
+      type: String,
+      required: false,
+      default: null,
+    },
     userPassKey: {
       type: String,
       required: false,

@@ -92,14 +92,14 @@ server.listen(port, () => {
   321
 */
 // Code here...
-function question4(n: number) {
-  let result = "";
-  for (let i = n; i > 0; i--) {
-    for (let j = n; j > n - i; j--) {
-      result += j.toString().repeat(i);
-    }
-    result += "\n";
-  }
-  console.log(result.trim());
-}
-question4(3);
+// function question4(n: number) {
+//   let result = "";
+//   for (let i = n; i > 0; i--) {
+//     for (let j = n; j > n - i; j--) {
+//       result += j.toString().repeat(i);
+//     }
+//     result += "\n";
+//   }
+//   console.log(result.trim());
+// }
+// question4(3);

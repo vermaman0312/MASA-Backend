@@ -1181,7 +1181,8 @@ export const verify2FACode: RequestHandler = async (
     }
     const authorizationData = req.headers.authorization;
     const { userOTP } = req.body as TUserPrivacyInterface;
-    const verified = verify2FAOtp(authorizationData as string, userOTP);
+    console.log("userOTP", userOTP);
+    const verified = await verify2FAOtp(authorizationData as string, userOTP);
     if (!verified) {
       return res.json({
         Type: "Success",
@@ -1197,6 +1198,7 @@ export const verify2FACode: RequestHandler = async (
       Message: "Otp verified successfully!!!",
     });
   } catch (error) {
+    console.error("Error in verify2FAOtp:", error);
     return res.json({
       Type: "Success",
       Success: false,

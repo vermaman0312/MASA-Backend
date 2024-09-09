@@ -11,6 +11,7 @@ export interface TUserPrivacyInterface {
   userIs2FA: boolean;
   userIs2FASetupCompleted: boolean;
   userOTP: string;
+  user2FAKey: string;
   userPassKey: string;
   userPreffered2FAApp: string;
   user2FAMethod: TUser2FAMethodType;
